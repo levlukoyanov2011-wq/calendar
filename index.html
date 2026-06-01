@@ -97,6 +97,85 @@
       background-size: 256px 256px;
     }
     #app { position: relative; z-index: 2; }
+
+    header {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 48px 20px 0;
+    }
+    .header-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 6vw, 3.2rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+    .week-count {
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
+    }
+    .tabs-wrap { overflow: hidden; }
+    .tabs {
+      display: inline-flex;
+      position: relative;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 4px;
+      gap: 2px;
+    }
+    .tab {
+      position: relative; z-index: 1;
+      padding: 8px 20px;
+      border: none; background: none;
+      color: var(--text-dim);
+      font-family: 'Golos Text', sans-serif;
+      font-size: 13px; font-weight: 500;
+      cursor: pointer;
+      border-radius: 9px;
+      transition: color 0.2s;
+      white-space: nowrap;
+    }
+    .tab.active { color: var(--text); }
+    .tab-indicator {
+      position: absolute;
+      top: 4px; height: calc(100% - 8px);
+      background: var(--tab-ind);
+      border-radius: 9px;
+      transition: left 0.25s cubic-bezier(.4,0,.2,1), width 0.25s cubic-bezier(.4,0,.2,1);
+      pointer-events: none;
+    }
+    main {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 24px 20px 100px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    #fab {
+      position: fixed;
+      bottom: 28px; right: 28px;
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: none;
+      color: #000;
+      font-size: 24px;
+      font-weight: 300;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      transition: transform 0.15s, background 0.6s ease;
+      z-index: 100;
+      line-height: 1;
+    }
+    #fab:hover { transform: scale(1.08); }
   </style>
 </head>
 <body>
@@ -107,6 +186,24 @@
   </div>
   <svg style="position:fixed;width:0;height:0"><filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feBlend in="SourceGraphic" mode="multiply"/></filter></svg>
   <div id="noise"></div>
+  <div id="app">
+    <header>
+      <div class="header-top">
+        <h1>Занятия</h1>
+        <span id="week-count" class="week-count"></span>
+      </div>
+      <div class="tabs-wrap">
+        <div class="tabs">
+          <button class="tab active" data-tab="all">Все</button>
+          <button class="tab" data-tab="kep">КЭП</button>
+          <button class="tab" data-tab="olmat">Олмат</button>
+          <div class="tab-indicator"></div>
+        </div>
+      </div>
+    </header>
+    <main id="lessons-list"></main>
+    <button id="fab" onclick="openModal()">+</button>
+  </div>
   <script>
     // будет заполняться в следующих задачах
   </script>
