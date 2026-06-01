@@ -6,36 +6,36 @@
   <title>Занятия</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Golos+Text:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Golos+Text:wght@400;500;600&family=Raleway:wght@700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:       #111118;
-      --blob-a:   #1f1f2e;
-      --blob-b:   #16161f;
-      --blob-c:   #1a1a28;
+      --bg:       #1a1a28;
+      --blob-a:   #2e2e4a;
+      --blob-b:   #222238;
+      --blob-c:   #26263c;
       --accent:   #b8922a;
       --accent2:  #6b5ecd;
       --text:     rgba(255,255,255,0.87);
       --text-dim: rgba(255,255,255,0.45);
-      --card-bg:  rgba(255,255,255,0.04);
-      --card-border: rgba(255,255,255,0.08);
-      --tab-ind:  rgba(255,255,255,0.12);
+      --card-bg:  rgba(255,255,255,0.06);
+      --card-border: rgba(255,255,255,0.1);
+      --tab-ind:  rgba(255,255,255,0.14);
     }
     :root.theme-kep {
-      --bg:      #110d00;
-      --blob-a:  #3a2800;
-      --blob-b:  #241800;
-      --blob-c:  #2e2000;
+      --bg:      #1c1500;
+      --blob-a:  #4a3510;
+      --blob-b:  #30200a;
+      --blob-c:  #3c2c0c;
       --accent:  #d4a43a;
     }
     :root.theme-olmat {
-      --bg:      #08080f;
-      --blob-a:  #141430;
-      --blob-b:  #0a0a22;
-      --blob-c:  #10102a;
-      --accent:  #7c6ee0;
+      --bg:      #0c0c26;
+      --blob-a:  #1e1e80;
+      --blob-b:  #16166a;
+      --blob-c:  #1a1a70;
+      --accent:  #9080f0;
     }
 
     html, body { height: 100%; }
@@ -55,6 +55,28 @@
       background: var(--bg);
       transition: background 0.6s ease;
       overflow: hidden;
+    }
+    #bg::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: radial-gradient(ellipse 90% 90% at 50% 40%, rgba(0,0,0,0.6) 0%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 40%, rgba(0,0,0,0.6) 0%, transparent 100%);
+      pointer-events: none;
+    }
+    #bg::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.04);
+      box-shadow: 0 0 0 140px rgba(255,255,255,0.02),
+                  0 0 0 280px rgba(255,255,255,0.015),
+                  0 0 0 420px rgba(255,255,255,0.01);
+      pointer-events: none;
     }
     .blob {
       position: absolute;
@@ -110,10 +132,11 @@
       margin-bottom: 28px;
     }
     h1 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(2rem, 6vw, 3.2rem);
-      font-weight: 600;
-      letter-spacing: -0.02em;
+      font-family: 'Raleway', sans-serif;
+      font-size: clamp(1.7rem, 5vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
       color: var(--text);
     }
     .week-count {
