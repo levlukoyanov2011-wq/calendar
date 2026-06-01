@@ -250,6 +250,23 @@
       from { opacity: 0; transform: translateY(14px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+    @keyframes flyToArchive {
+      0%   { opacity: 1; transform: translateX(0) scale(1); }
+      25%  { transform: translateX(-6px) scale(0.99); }
+      100% { opacity: 0; transform: translateX(48px) scale(0.93); }
+    }
+    @keyframes flyFromArchive {
+      0%   { opacity: 0; transform: translateX(48px) scale(0.93); }
+      100% { opacity: 1; transform: translateX(0) scale(1); }
+    }
+    .card.flying-out {
+      animation: flyToArchive 0.38s cubic-bezier(0.4, 0, 0.7, 1) both;
+      pointer-events: none;
+    }
+    .card.flying-in {
+      animation: flyFromArchive 0.35s cubic-bezier(0.2, 0, 0, 1) both;
+      pointer-events: none;
+    }
     .empty-state {
       text-align: center;
       padding: 64px 0;
@@ -667,7 +684,7 @@
            onclick="handleCardClick(event, ${l.id})">
         <div class="card-top">
           <button class="check-btn ${l.done ? 'checked' : ''}"
-                  onclick="event.stopPropagation(); toggleDone(${l.id}); renderLessons();">✓</button>
+                  onclick="event.stopPropagation(); archiveCard(event, ${l.id}, ${l.done});">✓</button>
           <span class="badge badge-${l.type}">${l.type === 'kep' ? 'КЭП' : 'Олмат'}</span>
         </div>
         <div class="card-meta">${formatDate(l.date)}${l.time ? ' · ' + l.time : ''}</div>
@@ -726,6 +743,13 @@
       if (currentTab === 'olmat') all = all.filter(l => l.type === 'olmat');
       const done = all.filter(l => l.done).sort(dateCmp);
       el.innerHTML = done.map((l, i) => cardHTML(l, i)).join('');
+    }
+
+    function archiveCard(e, id, isDone) {
+      const card = e.target.closest('.card');
+      if (!card) { toggleDone(id); renderLessons(); return; }
+      card.classList.add(isDone ? 'flying-in' : 'flying-out');
+      setTimeout(() => { toggleDone(id); renderLessons(); }, 360);
     }
 
     function escHtml(s) {
