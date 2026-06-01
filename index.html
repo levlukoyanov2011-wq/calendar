@@ -506,6 +506,19 @@
     .cal-popup-dot {
       width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 3px;
     }
+    .tg-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 9px 16px;
+      background: rgba(41,182,246,0.1);
+      border: 1px solid rgba(41,182,246,0.2);
+      border-radius: 12px;
+      color: #61c8f5; font-family: 'Golos Text', sans-serif;
+      font-size: 13px; font-weight: 500;
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s;
+      animation: fadeUp 0.4s ease both;
+    }
+    .tg-btn:hover { background: rgba(41,182,246,0.18); border-color: rgba(41,182,246,0.35); }
   </style>
 </head>
 <body>
@@ -655,7 +668,10 @@
       const active = all.filter(l => !l.done).sort(dateCmp);
       const done   = all.filter(l =>  l.done).sort(dateCmp);
 
-      let html = '';
+      let html = currentTab === 'olmat' ? `<a class="tg-btn" href="https://t.me/+4kq100fFNVg3NTI6" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.48 14.226l-2.95-.924c-.64-.203-.654-.64.136-.948l11.527-4.443c.537-.194 1.006.131.369.337z"/></svg>
+        Чат Олмат
+      </a>` : '';
 
       if (active.length === 0) {
         html += `<div class="empty-state">
