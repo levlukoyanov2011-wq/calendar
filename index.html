@@ -414,6 +414,98 @@
     .archive-list {
       margin-top: 8px; display: flex; flex-direction: column; gap: 8px;
     }
+
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    #cal-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px; padding: 5px 12px;
+      color: var(--text-dim); font-family: 'Golos Text', sans-serif;
+      font-size: 12px; letter-spacing: 0.04em;
+      cursor: pointer; transition: background 0.2s, color 0.2s, border-color 0.6s;
+      white-space: nowrap;
+    }
+    #cal-btn:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+    #cal-btn.active { color: var(--text); background: rgba(255,255,255,0.09);
+                      border-color: rgba(255,255,255,0.2); }
+
+    .cal-wrap {
+      max-width: 680px; margin: 0 auto; padding: 0 20px;
+      overflow: visible;
+    }
+    .cal-panel {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 16px 16px 12px;
+      margin-bottom: 16px;
+      animation: fadeUp 0.25s ease both;
+      overflow: visible;
+    }
+    .cal-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .cal-nav-btn {
+      background: none; border: none; color: var(--text-dim);
+      font-size: 20px; line-height: 1; cursor: pointer; padding: 2px 8px;
+      border-radius: 6px; transition: color 0.15s, background 0.15s;
+    }
+    .cal-nav-btn:hover { color: var(--text); background: rgba(255,255,255,0.07); }
+    .cal-title {
+      font-family: 'Raleway', sans-serif; font-size: 13px; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--text);
+    }
+    .cal-grid {
+      display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;
+      overflow: visible;
+    }
+    .cal-weekday {
+      text-align: center; font-size: 10px; color: var(--text-dim);
+      letter-spacing: 0.06em; padding: 0 0 6px; text-transform: uppercase;
+    }
+    .cal-day {
+      position: relative; text-align: center;
+      padding: 6px 2px 5px; border-radius: 8px;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      min-height: 40px; color: var(--text-dim); font-size: 13px;
+      transition: background 0.15s;
+      overflow: visible;
+    }
+    .cal-day.other-month { opacity: 0.25; }
+    .cal-day.has-lessons { cursor: pointer; }
+    .cal-day.has-lessons:hover { background: rgba(255,255,255,0.07); }
+    .cal-day.today .cal-day-num {
+      background: var(--accent); color: #000; border-radius: 50%;
+      width: 22px; height: 22px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; transition: background 0.6s;
+    }
+    .cal-dots { display: flex; gap: 3px; justify-content: center; }
+    .cal-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+    .cal-dot-kep   { background: #d4a43a; }
+    .cal-dot-olmat { background: #9080f0; }
+    .cal-popup {
+      display: none; position: absolute;
+      top: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+      min-width: 180px; max-width: 220px;
+      background: #1e1e2e; border: 1px solid rgba(255,255,255,0.13);
+      border-radius: 12px; padding: 10px 12px;
+      z-index: 200; text-align: left; pointer-events: none;
+      box-shadow: 0 10px 32px rgba(0,0,0,0.5);
+    }
+    .cal-day.has-lessons:hover .cal-popup { display: block; }
+    .cal-popup-date {
+      font-size: 11px; color: var(--text-dim); margin-bottom: 7px;
+      letter-spacing: 0.04em;
+    }
+    .cal-popup-item {
+      display: flex; align-items: flex-start; gap: 7px;
+      margin-bottom: 5px; font-size: 12px; line-height: 1.35; color: var(--text);
+    }
+    .cal-popup-item:last-child { margin-bottom: 0; }
+    .cal-popup-dot {
+      width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 3px;
+    }
   </style>
 </head>
 <body>
@@ -428,7 +520,10 @@
     <header>
       <div class="header-top">
         <h1>Занятия</h1>
-        <span id="week-count" class="week-count"></span>
+        <div class="header-right">
+          <span id="week-count" class="week-count"></span>
+          <button id="cal-btn" onclick="toggleCalendar()">Календарь</button>
+        </div>
       </div>
       <div class="tabs-wrap">
         <div class="tabs">
@@ -439,6 +534,7 @@
         </div>
       </div>
     </header>
+    <div class="cal-wrap"><div id="cal-panel" style="display:none"></div></div>
     <main id="lessons-list"></main>
     <button id="fab" onclick="openModal()">+</button>
     <dialog id="modal">
@@ -621,6 +717,90 @@
       }).length;
       const el = document.getElementById('week-count');
       if (el) el.textContent = count > 0 ? `${count} на этой неделе` : '';
+    }
+
+    let calVisible = false;
+    let calYear = new Date().getFullYear();
+    let calMonth = new Date().getMonth();
+
+    function toggleCalendar() {
+      calVisible = !calVisible;
+      const btn   = document.getElementById('cal-btn');
+      const panel = document.getElementById('cal-panel');
+      btn.classList.toggle('active', calVisible);
+      if (calVisible) {
+        panel.style.display = 'block';
+        renderCalendar();
+      } else {
+        panel.style.display = 'none';
+      }
+    }
+
+    function renderCalendar() {
+      const panel = document.getElementById('cal-panel');
+      if (!panel || !calVisible) return;
+
+      const lessons = loadLessons();
+      const lessonMap = {};
+      lessons.forEach(l => {
+        if (!lessonMap[l.date]) lessonMap[l.date] = [];
+        lessonMap[l.date].push(l);
+      });
+
+      const today    = new Date();
+      const firstDay = new Date(calYear, calMonth, 1);
+      const lastDay  = new Date(calYear, calMonth + 1, 0);
+      let startDow = firstDay.getDay();
+      startDow = startDow === 0 ? 6 : startDow - 1;
+
+      const MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь',
+                      'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+      const DAYS = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+
+      let html = `<div class="cal-panel">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" onclick="calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();">‹</button>
+          <span class="cal-title">${MONTHS[calMonth]} ${calYear}</span>
+          <button class="cal-nav-btn" onclick="calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();">›</button>
+        </div>
+        <div class="cal-grid">`;
+
+      DAYS.forEach(d => { html += `<div class="cal-weekday">${d}</div>`; });
+
+      for (let i = 0; i < startDow; i++) html += `<div class="cal-day"></div>`;
+
+      for (let d = 1; d <= lastDay.getDate(); d++) {
+        const dateStr    = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const dayLessons = lessonMap[dateStr] || [];
+        const isToday    = today.getFullYear()===calYear && today.getMonth()===calMonth && today.getDate()===d;
+
+        const hasKep   = dayLessons.some(l => l.type==='kep');
+        const hasOlmat = dayLessons.some(l => l.type==='olmat');
+
+        let dots = '';
+        if (hasKep)   dots += `<span class="cal-dot cal-dot-kep"></span>`;
+        if (hasOlmat) dots += `<span class="cal-dot cal-dot-olmat"></span>`;
+
+        let popup = '';
+        if (dayLessons.length > 0) {
+          popup = `<div class="cal-popup">
+            <div class="cal-popup-date">${formatDate(dateStr)}</div>
+            ${dayLessons.map(l => `<div class="cal-popup-item">
+              <span class="cal-popup-dot" style="background:${l.type==='kep'?'#d4a43a':'#9080f0'}"></span>
+              <span>${l.time ? l.time+' · ' : ''}${escHtml(l.topic)}</span>
+            </div>`).join('')}
+          </div>`;
+        }
+
+        html += `<div class="cal-day ${dayLessons.length>0?'has-lessons':''} ${isToday?'today':''}">
+          <span class="cal-day-num">${d}</span>
+          ${dots ? `<div class="cal-dots">${dots}</div>` : ''}
+          ${popup}
+        </div>`;
+      }
+
+      html += `</div></div>`;
+      panel.innerHTML = html;
     }
 
     const THEMES = { all: '', kep: 'theme-kep', olmat: 'theme-olmat' };
