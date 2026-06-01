@@ -601,7 +601,10 @@
       const day = now.getDay() || 7;
       const mon = new Date(now); mon.setDate(now.getDate() - day + 1); mon.setHours(0,0,0,0);
       const sun = new Date(mon); sun.setDate(mon.getDate() + 6); sun.setHours(23,59,59,999);
-      const count = loadLessons().filter(l => {
+      let lessons = loadLessons();
+      if (currentTab === 'kep')   lessons = lessons.filter(l => l.type === 'kep');
+      if (currentTab === 'olmat') lessons = lessons.filter(l => l.type === 'olmat');
+      const count = lessons.filter(l => {
         const d = new Date(l.date + 'T00:00:00');
         return d >= mon && d <= sun;
       }).length;
