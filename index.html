@@ -176,6 +176,72 @@
       line-height: 1;
     }
     #fab:hover { transform: scale(1.08); }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px 20px;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: border-color 0.2s, opacity 0.2s, transform 0.15s;
+      animation: fadeUp 0.4s ease both;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .card:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-1px); }
+    .card.done { opacity: 0.35; }
+    .card-top { display: flex; align-items: center; gap: 10px; }
+    .badge {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.08em;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .badge-kep   { background: rgba(184,146,42,0.2);  color: #d4a43a; }
+    .badge-olmat { background: rgba(107,94,205,0.2);  color: #9b8ef0; }
+    .card-org  { font-size: 12px; color: var(--text-dim); margin-left: auto; }
+    .card-meta { font-size: 13px; color: var(--text-dim); }
+    .card-topic {
+      font-size: 15px; color: var(--text);
+      font-weight: 500;
+    }
+    .card.done .card-topic { text-decoration: line-through; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .empty-state {
+      text-align: center;
+      padding: 64px 0;
+      color: var(--text-dim);
+      display: flex; flex-direction: column; align-items: center; gap: 16px;
+      animation: fadeUp 0.4s ease both;
+    }
+    .empty-state p { font-size: 15px; line-height: 1.6; }
+    .empty-state p strong {
+      display: block;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .empty-btn {
+      padding: 10px 24px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Golos Text', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .empty-btn:hover { background: rgba(255,255,255,0.11); }
   </style>
 </head>
 <body>
@@ -247,6 +313,99 @@
         { id: 4, type: 'olmat', org: 'Онлайн-курс',        date: '2026-06-20', time: '19:00', topic: 'Алгебра: многочлены и корни',      done: false },
       ];
       saveLessons(demos);
+    }
+
+    let currentTab = 'all';
+
+    function formatDate(dateStr) {
+      const d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+    }
+
+    function renderLessons() {
+      const list = document.getElementById('lessons-list');
+      let lessons = loadLessons();
+
+      if (currentTab === 'kep')   lessons = lessons.filter(l => l.type === 'kep');
+      if (currentTab === 'olmat') lessons = lessons.filter(l => l.type === 'olmat');
+
+      lessons.sort((a, b) => {
+        const da = new Date(a.date + 'T' + (a.time || '00:00'));
+        const db = new Date(b.date + 'T' + (b.time || '00:00'));
+        return da - db;
+      });
+
+      if (lessons.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <p><strong>Пока занятий нет</strong>Добавь первое — и оно появится здесь</p>
+            <button class="empty-btn" onclick="openModal()">Добавить занятие</button>
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = lessons.map((l, i) => `
+        <div class="card ${l.done ? 'done' : ''}"
+             style="animation-delay:${i * 60}ms"
+             onclick="handleCardClick(event, ${l.id})">
+          <div class="card-top">
+            <span class="badge badge-${l.type}">${l.type === 'kep' ? 'КЭП' : 'Олмат'}</span>
+            <span class="card-org">${escHtml(l.org)}</span>
+          </div>
+          <div class="card-meta">${formatDate(l.date)}${l.time ? ' · ' + l.time : ''}</div>
+          <div class="card-topic">${escHtml(l.topic)}</div>
+        </div>`).join('');
+
+      updateWeekCount();
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function handleCardClick(e, id) {
+      openModal(id);
+    }
+
+    function updateWeekCount() {
+      const now = new Date();
+      const day = now.getDay() || 7;
+      const mon = new Date(now); mon.setDate(now.getDate() - day + 1); mon.setHours(0,0,0,0);
+      const sun = new Date(mon); sun.setDate(mon.getDate() + 6); sun.setHours(23,59,59,999);
+      const count = loadLessons().filter(l => {
+        const d = new Date(l.date + 'T00:00:00');
+        return d >= mon && d <= sun;
+      }).length;
+      const el = document.getElementById('week-count');
+      if (el) el.textContent = count > 0 ? `${count} на этой неделе` : '';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      seedIfEmpty();
+      renderLessons();
+      updateWeekCount();
+
+      document.querySelectorAll('.tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tab = btn.dataset.tab;
+          currentTab = tab;
+          document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          updateTabIndicator();
+          renderLessons();
+        });
+      });
+
+      updateTabIndicator();
+    });
+
+    function updateTabIndicator() {
+      const active = document.querySelector('.tab.active');
+      const indicator = document.querySelector('.tab-indicator');
+      if (active && indicator) {
+        indicator.style.left = active.offsetLeft + 'px';
+        indicator.style.width = active.offsetWidth + 'px';
+      }
     }
   </script>
 </body>
