@@ -454,10 +454,7 @@
               <option value="olmat">Олмат</option>
             </select>
           </label>
-          <label>
-            <span>Организация</span>
-            <input name="org" type="text" placeholder="Название" required maxlength="80">
-          </label>
+
           <div class="field-row">
             <label>
               <span>Дата</span>
@@ -545,7 +542,6 @@
           <button class="check-btn ${l.done ? 'checked' : ''}"
                   onclick="event.stopPropagation(); toggleDone(${l.id}); renderLessons();">✓</button>
           <span class="badge badge-${l.type}">${l.type === 'kep' ? 'КЭП' : 'Олмат'}</span>
-          <span class="card-org">${escHtml(l.org)}</span>
         </div>
         <div class="card-meta">${formatDate(l.date)}${l.time ? ' · ' + l.time : ''}</div>
         <div class="card-topic">${escHtml(l.topic)}</div>
@@ -654,7 +650,6 @@
         if (!l) return;
         title.textContent = 'Редактировать';
         form.type.value  = l.type;
-        form.org.value   = l.org;
         form.date.value  = l.date;
         form.time.value  = l.time || '';
         form.topic.value = l.topic;
@@ -677,7 +672,7 @@
       const form = e.target;
       const data = {
         type:  form.type.value,
-        org:   form.org.value.trim(),
+
         date:  form.date.value,
         time:  form.time.value,
         topic: form.topic.value.trim(),
