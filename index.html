@@ -485,15 +485,32 @@
     .cal-dot-kep   { background: #d4a43a; }
     .cal-dot-olmat { background: #9080f0; }
     .cal-popup {
-      display: none; position: absolute;
-      top: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+      position: absolute;
+      top: calc(100% + 8px); left: 50%;
+      transform: translateX(-50%) scale(0.88) translateY(6px);
+      transform-origin: top center;
       min-width: 180px; max-width: 220px;
       background: #1e1e2e; border: 1px solid rgba(255,255,255,0.13);
       border-radius: 12px; padding: 10px 12px;
       z-index: 200; text-align: left; pointer-events: none;
       box-shadow: 0 10px 32px rgba(0,0,0,0.5);
+      visibility: hidden; opacity: 0;
+      transition: opacity 0.15s ease, transform 0.18s ease, visibility 0s linear 0.15s;
     }
-    .cal-day.has-lessons:hover .cal-popup { display: block; }
+    @media (hover: hover) and (pointer: fine) {
+      .cal-day.has-lessons:hover .cal-popup {
+        visibility: visible; opacity: 1;
+        transform: translateX(-50%) scale(1) translateY(0);
+        transition: opacity 0.22s ease 0.3s,
+                    transform 0.32s cubic-bezier(0.34, 1.4, 0.64, 1) 0.3s,
+                    visibility 0s linear 0.3s;
+      }
+    }
+    .cal-day.has-lessons.tapped .cal-popup {
+      visibility: visible; opacity: 1;
+      transform: translateX(-50%) scale(1) translateY(0);
+      transition: opacity 0.2s ease, transform 0.28s cubic-bezier(0.34, 1.4, 0.64, 1), visibility 0s;
+    }
     .cal-popup-date {
       font-size: 11px; color: var(--text-dim); margin-bottom: 7px;
       letter-spacing: 0.04em;
@@ -670,7 +687,7 @@
 
       let html = currentTab === 'olmat' ? `<a class="tg-btn" href="https://t.me/+4kq100fFNVg3NTI6" target="_blank" rel="noopener">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.48 14.226l-2.95-.924c-.64-.203-.654-.64.136-.948l11.527-4.443c.537-.194 1.006.131.369.337z"/></svg>
-        Чат Олмат
+        Канал Олмат
       </a>` : '';
 
       if (active.length === 0) {
@@ -808,7 +825,8 @@
           </div>`;
         }
 
-        html += `<div class="cal-day ${dayLessons.length>0?'has-lessons':''} ${isToday?'today':''}">
+        html += `<div class="cal-day ${dayLessons.length>0?'has-lessons':''} ${isToday?'today':''}"
+          ${dayLessons.length>0?'onclick="calDayTap(event,this)"':''}>
           <span class="cal-day-num">${d}</span>
           ${dots ? `<div class="cal-dots">${dots}</div>` : ''}
           ${popup}
@@ -818,6 +836,16 @@
       html += `</div></div>`;
       panel.innerHTML = html;
     }
+
+    function calDayTap(e, el) {
+      e.stopPropagation();
+      const open = el.classList.contains('tapped');
+      document.querySelectorAll('.cal-day.tapped').forEach(d => d.classList.remove('tapped'));
+      if (!open) el.classList.add('tapped');
+    }
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.cal-day.tapped').forEach(d => d.classList.remove('tapped'));
+    });
 
     const THEMES = { all: '', kep: 'theme-kep', olmat: 'theme-olmat' };
 
