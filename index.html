@@ -125,7 +125,11 @@
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
       background-size: 256px 256px;
     }
-    #app { position: relative; z-index: 2; }
+    #app {
+      position: fixed; inset: 0; z-index: 2;
+      overflow-y: auto;
+      overscroll-behavior: none;
+    }
 
     header {
       max-width: 680px;
@@ -367,6 +371,48 @@
       display: none;
     }
     .btn-delete:hover { background: rgba(255,80,80,0.1); }
+
+    .check-btn {
+      width: 20px; height: 20px; flex-shrink: 0;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.22);
+      background: none; cursor: pointer; padding: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700;
+      color: transparent;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .check-btn:hover { border-color: rgba(255,255,255,0.45); }
+    .check-btn.checked {
+      background: var(--accent); border-color: var(--accent);
+      color: #000;
+      transition: background 0.6s, border-color 0.6s, color 0.2s;
+    }
+    .archive-wrap { margin-top: 4px; }
+    .archive-toggle {
+      width: 100%; display: flex; align-items: center; gap: 8px;
+      padding: 11px 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px;
+      color: var(--text-dim);
+      font-family: 'Golos Text', sans-serif; font-size: 13px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .archive-toggle:hover { background: rgba(255,255,255,0.06); }
+    .archive-count {
+      background: rgba(255,255,255,0.08); border-radius: 20px;
+      padding: 1px 8px; font-size: 11px;
+    }
+    .archive-arrow {
+      margin-left: auto; font-size: 16px; line-height: 1;
+      transition: transform 0.25s cubic-bezier(.4,0,.2,1);
+      display: inline-block;
+    }
+    .archive-arrow.open { transform: rotate(90deg); }
+    .archive-list {
+      margin-top: 8px; display: flex; flex-direction: column; gap: 8px;
+    }
   </style>
 </head>
 <body>
@@ -480,46 +526,65 @@
     }
 
     let currentTab = 'all';
+    let archiveOpen = false;
 
     function formatDate(dateStr) {
       const d = new Date(dateStr + 'T00:00:00');
       return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
     }
 
+    function dateCmp(a, b) {
+      return new Date(a.date + 'T' + (a.time || '00:00')) - new Date(b.date + 'T' + (b.time || '00:00'));
+    }
+
+    function cardHTML(l, i) {
+      return `<div class="card ${l.done ? 'done' : ''}"
+           style="animation-delay:${i * 60}ms"
+           onclick="handleCardClick(event, ${l.id})">
+        <div class="card-top">
+          <button class="check-btn ${l.done ? 'checked' : ''}"
+                  onclick="event.stopPropagation(); toggleDone(${l.id}); renderLessons();">✓</button>
+          <span class="badge badge-${l.type}">${l.type === 'kep' ? 'КЭП' : 'Олмат'}</span>
+          <span class="card-org">${escHtml(l.org)}</span>
+        </div>
+        <div class="card-meta">${formatDate(l.date)}${l.time ? ' · ' + l.time : ''}</div>
+        <div class="card-topic">${escHtml(l.topic)}</div>
+      </div>`;
+    }
+
     function renderLessons() {
       const list = document.getElementById('lessons-list');
-      let lessons = loadLessons();
+      let all = loadLessons();
 
-      if (currentTab === 'kep')   lessons = lessons.filter(l => l.type === 'kep');
-      if (currentTab === 'olmat') lessons = lessons.filter(l => l.type === 'olmat');
+      if (currentTab === 'kep')   all = all.filter(l => l.type === 'kep');
+      if (currentTab === 'olmat') all = all.filter(l => l.type === 'olmat');
 
-      lessons.sort((a, b) => {
-        const da = new Date(a.date + 'T' + (a.time || '00:00'));
-        const db = new Date(b.date + 'T' + (b.time || '00:00'));
-        return da - db;
-      });
+      const active = all.filter(l => !l.done).sort(dateCmp);
+      const done   = all.filter(l =>  l.done).sort(dateCmp);
 
-      if (lessons.length === 0) {
-        list.innerHTML = `
-          <div class="empty-state">
-            <p><strong>Пока занятий нет</strong>Добавь первое — и оно появится здесь</p>
-            <button class="empty-btn" onclick="openModal()">Добавить занятие</button>
-          </div>`;
-        return;
+      let html = '';
+
+      if (active.length === 0) {
+        html += `<div class="empty-state">
+          <p><strong>Пока занятий нет</strong>Добавь первое — и оно появится здесь</p>
+          <button class="empty-btn" onclick="openModal()">Добавить занятие</button>
+        </div>`;
+      } else {
+        html += active.map((l, i) => cardHTML(l, i)).join('');
       }
 
-      list.innerHTML = lessons.map((l, i) => `
-        <div class="card ${l.done ? 'done' : ''}"
-             style="animation-delay:${i * 60}ms"
-             onclick="handleCardClick(event, ${l.id})">
-          <div class="card-top">
-            <span class="badge badge-${l.type}">${l.type === 'kep' ? 'КЭП' : 'Олмат'}</span>
-            <span class="card-org">${escHtml(l.org)}</span>
-          </div>
-          <div class="card-meta">${formatDate(l.date)}${l.time ? ' · ' + l.time : ''}</div>
-          <div class="card-topic">${escHtml(l.topic)}</div>
-        </div>`).join('');
+      if (done.length > 0) {
+        html += `<div class="archive-wrap">
+          <button class="archive-toggle" onclick="archiveOpen=!archiveOpen; renderLessons();">
+            <span>Архив</span>
+            <span class="archive-count">${done.length}</span>
+            <span class="archive-arrow ${archiveOpen ? 'open' : ''}">›</span>
+          </button>
+          ${archiveOpen ? '<div class="archive-list">' + done.map((l, i) => cardHTML(l, i)).join('') + '</div>' : ''}
+        </div>`;
+      }
 
+      list.innerHTML = html;
       updateWeekCount();
     }
 
@@ -528,12 +593,6 @@
     }
 
     function handleCardClick(e, id) {
-      // Клик по бейджу или мета-строке — toggle done
-      if (e.target.classList.contains('badge') || e.target.classList.contains('card-meta')) {
-        toggleDone(id);
-        renderLessons();
-        return;
-      }
       openModal(id);
     }
 
