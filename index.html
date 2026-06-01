@@ -380,6 +380,47 @@
       if (el) el.textContent = count > 0 ? `${count} на этой неделе` : '';
     }
 
+    const THEMES = { all: '', kep: 'theme-kep', olmat: 'theme-olmat' };
+
+    function switchTab(tab) {
+      currentTab = tab;
+
+      document.querySelectorAll('.tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === tab);
+      });
+
+      const root = document.documentElement;
+      root.className = THEMES[tab] || '';
+
+      moveIndicator(document.querySelector(`.tab[data-tab="${tab}"]`));
+      renderLessons();
+    }
+
+    function moveIndicator(activeTab) {
+      const ind = document.querySelector('.tab-indicator');
+      const wrap = document.querySelector('.tabs');
+      if (!ind || !activeTab || !wrap) return;
+      const wrapRect = wrap.getBoundingClientRect();
+      const tabRect  = activeTab.getBoundingClientRect();
+      ind.style.left  = (tabRect.left - wrapRect.left) + 'px';
+      ind.style.width = tabRect.width + 'px';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      seedIfEmpty();
+
+      document.querySelectorAll('.tab').forEach(t => {
+        t.addEventListener('click', () => switchTab(t.dataset.tab));
+      });
+
+      // Инициализация индикатора
+      requestAnimationFrame(() => {
+        moveIndicator(document.querySelector('.tab.active'));
+      });
+
+      renderLessons();
+    });
+
   </script>
 </body>
 </html>
