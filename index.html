@@ -448,7 +448,7 @@
         </div>
         <div class="modal-body">
           <label>
-            <span>Направление</span>
+            <span>Организация</span>
             <select name="type" required>
               <option value="kep">КЭП</option>
               <option value="olmat">Олмат</option>
@@ -571,17 +571,31 @@
 
       if (done.length > 0) {
         html += `<div class="archive-wrap">
-          <button class="archive-toggle" onclick="archiveOpen=!archiveOpen; renderLessons();">
+          <button class="archive-toggle" onclick="archiveOpen=!archiveOpen; renderArchive();">
             <span>Архив</span>
             <span class="archive-count">${done.length}</span>
-            <span class="archive-arrow ${archiveOpen ? 'open' : ''}">›</span>
+            <span class="archive-arrow">›</span>
           </button>
-          ${archiveOpen ? '<div class="archive-list">' + done.map((l, i) => cardHTML(l, i)).join('') + '</div>' : ''}
+          <div id="archive-list" class="archive-list"></div>
         </div>`;
       }
 
       list.innerHTML = html;
       updateWeekCount();
+      renderArchive();
+    }
+
+    function renderArchive() {
+      const el = document.getElementById('archive-list');
+      if (!el) return;
+      const arrow = document.querySelector('.archive-arrow');
+      if (arrow) arrow.classList.toggle('open', archiveOpen);
+      if (!archiveOpen) { el.innerHTML = ''; return; }
+      let all = loadLessons();
+      if (currentTab === 'kep')   all = all.filter(l => l.type === 'kep');
+      if (currentTab === 'olmat') all = all.filter(l => l.type === 'olmat');
+      const done = all.filter(l => l.done).sort(dateCmp);
+      el.innerHTML = done.map((l, i) => cardHTML(l, i)).join('');
     }
 
     function escHtml(s) {
