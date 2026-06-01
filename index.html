@@ -205,7 +205,49 @@
     <button id="fab" onclick="openModal()">+</button>
   </div>
   <script>
-    // будет заполняться в следующих задачах
+    const STORAGE_KEY = 'tracker-lessons';
+
+    function loadLessons() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+      catch { return []; }
+    }
+
+    function saveLessons(lessons) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(lessons));
+    }
+
+    function addLesson(data) {
+      const lessons = loadLessons();
+      lessons.push({ id: Date.now(), ...data, done: false });
+      saveLessons(lessons);
+    }
+
+    function updateLesson(id, patch) {
+      const lessons = loadLessons();
+      const i = lessons.findIndex(l => l.id === id);
+      if (i !== -1) { lessons[i] = { ...lessons[i], ...patch }; saveLessons(lessons); }
+    }
+
+    function deleteLesson(id) {
+      saveLessons(loadLessons().filter(l => l.id !== id));
+    }
+
+    function toggleDone(id) {
+      const lessons = loadLessons();
+      const l = lessons.find(l => l.id === id);
+      if (l) { l.done = !l.done; saveLessons(lessons); }
+    }
+
+    function seedIfEmpty() {
+      if (loadLessons().length > 0) return;
+      const demos = [
+        { id: 1, type: 'olmat', org: 'Центр «Сириус»',    date: '2026-06-05', time: '18:00', topic: 'Разбор задач ВсОШ по математике',  done: false },
+        { id: 2, type: 'olmat', org: 'МФТИ',               date: '2026-06-10', time: '17:30', topic: 'Теория чисел: делимость и НОД',    done: false },
+        { id: 3, type: 'olmat', org: 'Олимпиадная школа',  date: '2026-06-15', time: '16:00', topic: 'Комбинаторика: принцип Дирихле',   done: true  },
+        { id: 4, type: 'olmat', org: 'Онлайн-курс',        date: '2026-06-20', time: '19:00', topic: 'Алгебра: многочлены и корни',      done: false },
+      ];
+      saveLessons(demos);
+    }
   </script>
 </body>
 </html>
