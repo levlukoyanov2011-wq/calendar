@@ -380,33 +380,6 @@
       if (el) el.textContent = count > 0 ? `${count} на этой неделе` : '';
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      seedIfEmpty();
-      renderLessons();
-      updateWeekCount();
-
-      document.querySelectorAll('.tab').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const tab = btn.dataset.tab;
-          currentTab = tab;
-          document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          updateTabIndicator();
-          renderLessons();
-        });
-      });
-
-      updateTabIndicator();
-    });
-
-    function updateTabIndicator() {
-      const active = document.querySelector('.tab.active');
-      const indicator = document.querySelector('.tab-indicator');
-      if (active && indicator) {
-        indicator.style.left = active.offsetLeft + 'px';
-        indicator.style.width = active.offsetWidth + 'px';
-      }
-    }
   </script>
 </body>
 </html>
