@@ -242,6 +242,101 @@
       transition: background 0.2s;
     }
     .empty-btn:hover { background: rgba(255,255,255,0.11); }
+
+    dialog {
+      position: fixed;
+      inset: 0; margin: auto;
+      width: min(480px, calc(100vw - 32px));
+      max-height: calc(100vh - 40px);
+      background: #1a1a26;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 0;
+      color: var(--text);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+      overflow: hidden;
+      animation: modalIn 0.2s ease both;
+    }
+    dialog::backdrop {
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.97) translateY(8px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .modal-header h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem; font-weight: 600;
+    }
+    .modal-close {
+      background: none; border: none;
+      color: var(--text-dim); font-size: 16px;
+      cursor: pointer; padding: 4px 8px;
+      border-radius: 6px;
+      transition: color 0.15s;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal-body {
+      padding: 20px 24px;
+      display: flex; flex-direction: column; gap: 14px;
+      overflow-y: auto; max-height: calc(100vh - 220px);
+    }
+    .modal-body label { display: flex; flex-direction: column; gap: 6px; }
+    .modal-body label span { font-size: 12px; color: var(--text-dim); letter-spacing: 0.04em; }
+    .modal-body input,
+    .modal-body select,
+    .modal-body textarea {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: 'Golos Text', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+    .modal-body input:focus,
+    .modal-body select:focus,
+    .modal-body textarea:focus { border-color: rgba(255,255,255,0.25); }
+    .modal-body textarea { resize: vertical; }
+    .modal-body select option { background: #1a1a26; }
+    .field-row { display: flex; gap: 12px; }
+    .field-row label { flex: 1; }
+    .modal-footer {
+      padding: 16px 24px;
+      display: flex; justify-content: flex-end; gap: 10px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .btn-save {
+      padding: 10px 24px;
+      background: var(--accent);
+      border: none; border-radius: 10px;
+      color: #000; font-family: 'Golos Text', sans-serif;
+      font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: opacity 0.15s, background 0.6s;
+    }
+    .btn-save:hover { opacity: 0.85; }
+    .btn-delete {
+      padding: 10px 16px;
+      background: none;
+      border: 1px solid rgba(255,80,80,0.25);
+      border-radius: 10px;
+      color: rgba(255,100,100,0.7);
+      font-family: 'Golos Text', sans-serif;
+      font-size: 14px;
+      cursor: pointer; margin-right: auto;
+      transition: background 0.15s;
+      display: none;
+    }
+    .btn-delete:hover { background: rgba(255,80,80,0.1); }
   </style>
 </head>
 <body>
@@ -269,6 +364,45 @@
     </header>
     <main id="lessons-list"></main>
     <button id="fab" onclick="openModal()">+</button>
+    <dialog id="modal">
+      <form id="lesson-form" onsubmit="saveLesson(event)">
+        <div class="modal-header">
+          <h2 id="modal-title">Новое занятие</h2>
+          <button type="button" class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <label>
+            <span>Направление</span>
+            <select name="type" required>
+              <option value="kep">КЭП</option>
+              <option value="olmat">Олмат</option>
+            </select>
+          </label>
+          <label>
+            <span>Организация</span>
+            <input name="org" type="text" placeholder="Название" required maxlength="80">
+          </label>
+          <div class="field-row">
+            <label>
+              <span>Дата</span>
+              <input name="date" type="date" required>
+            </label>
+            <label>
+              <span>Время</span>
+              <input name="time" type="time">
+            </label>
+          </div>
+          <label>
+            <span>Тема</span>
+            <textarea name="topic" rows="3" placeholder="Тема занятия" required maxlength="200"></textarea>
+          </label>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="delete-btn" class="btn-delete" onclick="confirmDelete()">Удалить</button>
+          <button type="submit" class="btn-save">Сохранить</button>
+        </div>
+      </form>
+    </dialog>
   </div>
   <script>
     const STORAGE_KEY = 'tracker-lessons';
@@ -405,6 +539,69 @@
       ind.style.left  = (tabRect.left - wrapRect.left) + 'px';
       ind.style.width = tabRect.width + 'px';
     }
+
+    let editingId = null;
+
+    function openModal(id) {
+      editingId = id || null;
+      const modal = document.getElementById('modal');
+      const form  = document.getElementById('lesson-form');
+      const title = document.getElementById('modal-title');
+      const delBtn = document.getElementById('delete-btn');
+
+      form.reset();
+
+      if (id) {
+        const l = loadLessons().find(l => l.id === id);
+        if (!l) return;
+        title.textContent = 'Редактировать';
+        form.type.value  = l.type;
+        form.org.value   = l.org;
+        form.date.value  = l.date;
+        form.time.value  = l.time || '';
+        form.topic.value = l.topic;
+        delBtn.style.display = 'block';
+      } else {
+        title.textContent = 'Новое занятие';
+        delBtn.style.display = 'none';
+      }
+
+      modal.showModal();
+    }
+
+    function closeModal() {
+      document.getElementById('modal').close();
+      editingId = null;
+    }
+
+    function saveLesson(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        type:  form.type.value,
+        org:   form.org.value.trim(),
+        date:  form.date.value,
+        time:  form.time.value,
+        topic: form.topic.value.trim(),
+      };
+      if (editingId) { updateLesson(editingId, data); }
+      else { addLesson(data); }
+      closeModal();
+      renderLessons();
+    }
+
+    function confirmDelete() {
+      if (!editingId) return;
+      if (confirm('Удалить занятие?')) {
+        deleteLesson(editingId);
+        closeModal();
+        renderLessons();
+      }
+    }
+
+    document.getElementById('modal')?.addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeModal();
+    });
 
     document.addEventListener('DOMContentLoaded', () => {
       seedIfEmpty();
