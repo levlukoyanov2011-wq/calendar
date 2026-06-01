@@ -77,6 +77,13 @@
                   0 0 0 280px rgba(255,255,255,0.015),
                   0 0 0 420px rgba(255,255,255,0.01);
       pointer-events: none;
+      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    :root.theme-kep #bg::after {
+      transform: translate(-62%, -42%);
+    }
+    :root.theme-olmat #bg::after {
+      transform: translate(-38%, -60%);
     }
     .blob {
       position: absolute;
