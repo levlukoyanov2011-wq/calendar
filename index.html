@@ -671,16 +671,7 @@
       if (l) { l.done = !l.done; saveLessons(lessons); }
     }
 
-    function seedIfEmpty() {
-      if (loadLessons().length > 0) return;
-      const demos = [
-        { id: 1, type: 'olmat', date: '2026-06-05', time: '18:00', topic: 'Разбор задач ВсОШ по математике',  done: false },
-        { id: 2, type: 'olmat', date: '2026-06-10', time: '17:30', topic: 'Теория чисел: делимость и НОД',    done: false },
-        { id: 3, type: 'olmat', date: '2026-06-15', time: '16:00', topic: 'Комбинаторика: принцип Дирихле',   done: true  },
-        { id: 4, type: 'olmat', date: '2026-06-20', time: '19:00', topic: 'Алгебра: многочлены и корни',      done: false },
-      ];
-      saveLessons(demos);
-    }
+    function seedIfEmpty() { }
 
     function seedKEP() {
       if (loadLessons().some(l => l.id >= 1001 && l.id <= 1039)) return;
