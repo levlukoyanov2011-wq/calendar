@@ -667,56 +667,56 @@
     }
 
     function seedKEP() {
-      if (loadLessons().some(l => l.type === 'kep')) return;
+      if (loadLessons().some(l => l.id >= 1001 && l.id <= 1039)) return;
       const kep = [
         // Неделя 1
-        { id: 1001, type: 'kep', date: '2026-06-08', time: '',     topic: 'Открытие подборки: Продвинутые модели несовершенной конкуренции', done: false },
-        { id: 1002, type: 'kep', date: '2026-06-10', time: '19:00', topic: 'Вебинар: Продвинутые модели несовершенной конкуренции (Монахов)', done: false },
-        { id: 1003, type: 'kep', date: '2026-06-11', time: '22:00', topic: 'Дедлайн проверки', done: false },
-        { id: 1004, type: 'kep', date: '2026-06-14', time: '22:00', topic: 'Дедлайн проверки', done: false },
+        { id: 1001, type: 'olmat', date: '2026-06-08', time: '',     topic: 'Открытие подборки: Продвинутые модели несовершенной конкуренции', done: false },
+        { id: 1002, type: 'olmat', date: '2026-06-10', time: '19:00', topic: 'Вебинар: Продвинутые модели несовершенной конкуренции (Монахов)', done: false },
+        { id: 1003, type: 'olmat', date: '2026-06-11', time: '22:00', topic: 'Дедлайн проверки', done: false },
+        { id: 1004, type: 'olmat', date: '2026-06-14', time: '22:00', topic: 'Дедлайн проверки', done: false },
         // Неделя 2
-        { id: 1005, type: 'kep', date: '2026-06-15', time: '',     topic: 'Открытие подборки: Дизайн механизмов', done: false },
-        { id: 1006, type: 'kep', date: '2026-06-15', time: '',     topic: 'Открытие решалки: Продвинутые модели несовершенной конкуренции', done: false },
-        { id: 1007, type: 'kep', date: '2026-06-17', time: '19:00', topic: 'Вебинар: Дизайн механизмов (Логинов)', done: false },
-        { id: 1008, type: 'kep', date: '2026-06-18', time: '22:00', topic: 'Дедлайн проверки', done: false },
-        { id: 1009, type: 'kep', date: '2026-06-21', time: '22:00', topic: 'Дедлайн проверки', done: false },
+        { id: 1005, type: 'olmat', date: '2026-06-15', time: '',     topic: 'Открытие подборки: Дизайн механизмов', done: false },
+        { id: 1006, type: 'olmat', date: '2026-06-15', time: '',     topic: 'Открытие решалки: Продвинутые модели несовершенной конкуренции', done: false },
+        { id: 1007, type: 'olmat', date: '2026-06-17', time: '19:00', topic: 'Вебинар: Дизайн механизмов (Логинов)', done: false },
+        { id: 1008, type: 'olmat', date: '2026-06-18', time: '22:00', topic: 'Дедлайн проверки', done: false },
+        { id: 1009, type: 'olmat', date: '2026-06-21', time: '22:00', topic: 'Дедлайн проверки', done: false },
         // Неделя 3
-        { id: 1010, type: 'kep', date: '2026-06-22', time: '',     topic: 'Открытие подборки: Качественные задачи', done: false },
-        { id: 1011, type: 'kep', date: '2026-06-22', time: '',     topic: 'Открытие решалки: Дизайн механизмов', done: false },
-        { id: 1012, type: 'kep', date: '2026-06-24', time: '19:00', topic: 'Вебинар: Качественные задачи (Сухорученкова)', done: false },
-        { id: 1013, type: 'kep', date: '2026-06-25', time: '22:00', topic: 'Дедлайн проверки', done: false },
-        { id: 1014, type: 'kep', date: '2026-06-28', time: '22:00', topic: 'Дедлайн проверки', done: false },
+        { id: 1010, type: 'olmat', date: '2026-06-22', time: '',     topic: 'Открытие подборки: Качественные задачи', done: false },
+        { id: 1011, type: 'olmat', date: '2026-06-22', time: '',     topic: 'Открытие решалки: Дизайн механизмов', done: false },
+        { id: 1012, type: 'olmat', date: '2026-06-24', time: '19:00', topic: 'Вебинар: Качественные задачи (Сухорученкова)', done: false },
+        { id: 1013, type: 'olmat', date: '2026-06-25', time: '22:00', topic: 'Дедлайн проверки', done: false },
+        { id: 1014, type: 'olmat', date: '2026-06-28', time: '22:00', topic: 'Дедлайн проверки', done: false },
         // Неделя 4
-        { id: 1015, type: 'kep', date: '2026-06-29', time: '',     topic: 'Открытие подборки: Аукционы, смешанные стратегии', done: false },
-        { id: 1016, type: 'kep', date: '2026-06-29', time: '',     topic: 'Открытие решалки: Качественные задачи', done: false },
-        { id: 1017, type: 'kep', date: '2026-07-01', time: '19:00', topic: 'Вебинар: Аукционы (Монахов)', done: false },
-        { id: 1018, type: 'kep', date: '2026-07-02', time: '22:00', topic: 'Дедлайн проверки', done: false },
-        { id: 1019, type: 'kep', date: '2026-07-04', time: '19:00', topic: 'Вебинар: Смешанные стратегии (Денисов)', done: false },
-        { id: 1020, type: 'kep', date: '2026-07-05', time: '22:00', topic: 'Дедлайн проверки', done: false },
+        { id: 1015, type: 'olmat', date: '2026-06-29', time: '',     topic: 'Открытие подборки: Аукционы, смешанные стратегии', done: false },
+        { id: 1016, type: 'olmat', date: '2026-06-29', time: '',     topic: 'Открытие решалки: Качественные задачи', done: false },
+        { id: 1017, type: 'olmat', date: '2026-07-01', time: '19:00', topic: 'Вебинар: Аукционы (Монахов)', done: false },
+        { id: 1018, type: 'olmat', date: '2026-07-02', time: '22:00', topic: 'Дедлайн проверки', done: false },
+        { id: 1019, type: 'olmat', date: '2026-07-04', time: '19:00', topic: 'Вебинар: Смешанные стратегии (Денисов)', done: false },
+        { id: 1020, type: 'olmat', date: '2026-07-05', time: '22:00', topic: 'Дедлайн проверки', done: false },
         // Неделя 5
-        { id: 1021, type: 'kep', date: '2026-07-06', time: '',     topic: 'Открытие подборки: Современный центральный банк', done: false },
-        { id: 1022, type: 'kep', date: '2026-07-06', time: '',     topic: 'Открытие решалки: Аукционы', done: false },
-        { id: 1023, type: 'kep', date: '2026-07-08', time: '19:00', topic: 'Вебинар: Современный центральный банк (Астахов)', done: false },
-        { id: 1024, type: 'kep', date: '2026-07-09', time: '22:00', topic: 'Дедлайн проверки', done: false },
-        { id: 1025, type: 'kep', date: '2026-07-10', time: '',     topic: 'Открытие подборки: Асимметрия информации', done: false },
-        { id: 1026, type: 'kep', date: '2026-07-12', time: '22:00', topic: 'Дедлайн проверки', done: false },
+        { id: 1021, type: 'olmat', date: '2026-07-06', time: '',     topic: 'Открытие подборки: Современный центральный банк', done: false },
+        { id: 1022, type: 'olmat', date: '2026-07-06', time: '',     topic: 'Открытие решалки: Аукционы', done: false },
+        { id: 1023, type: 'olmat', date: '2026-07-08', time: '19:00', topic: 'Вебинар: Современный центральный банк (Астахов)', done: false },
+        { id: 1024, type: 'olmat', date: '2026-07-09', time: '22:00', topic: 'Дедлайн проверки', done: false },
+        { id: 1025, type: 'olmat', date: '2026-07-10', time: '',     topic: 'Открытие подборки: Асимметрия информации', done: false },
+        { id: 1026, type: 'olmat', date: '2026-07-12', time: '22:00', topic: 'Дедлайн проверки', done: false },
         // Неделя 6
-        { id: 1027, type: 'kep', date: '2026-07-13', time: '',     topic: 'Открытие решалки: Современный центральный банк, смешанные стратегии', done: false },
-        { id: 1028, type: 'kep', date: '2026-07-14', time: '19:00', topic: 'Вебинар: Асимметрия информации (Симаков)', done: false },
+        { id: 1027, type: 'olmat', date: '2026-07-13', time: '',     topic: 'Открытие решалки: Современный центральный банк, смешанные стратегии', done: false },
+        { id: 1028, type: 'olmat', date: '2026-07-14', time: '19:00', topic: 'Вебинар: Асимметрия информации (Симаков)', done: false },
         // Неделя 7
-        { id: 1029, type: 'kep', date: '2026-07-24', time: '',     topic: 'Открытие подборки: Эконометрика', done: false },
-        { id: 1030, type: 'kep', date: '2026-07-24', time: '',     topic: 'Открытие решалки: Асимметрия информации', done: false },
-        { id: 1031, type: 'kep', date: '2026-07-26', time: '22:00', topic: 'Дедлайн проверки', done: false },
+        { id: 1029, type: 'olmat', date: '2026-07-24', time: '',     topic: 'Открытие подборки: Эконометрика', done: false },
+        { id: 1030, type: 'olmat', date: '2026-07-24', time: '',     topic: 'Открытие решалки: Асимметрия информации', done: false },
+        { id: 1031, type: 'olmat', date: '2026-07-26', time: '22:00', topic: 'Дедлайн проверки', done: false },
         // Неделя 8
-        { id: 1032, type: 'kep', date: '2026-07-27', time: '19:00', topic: 'Вебинар: Эконометрика (Астахов)', done: false },
-        { id: 1033, type: 'kep', date: '2026-07-30', time: '22:00', topic: 'Дедлайн проверки', done: false },
-        { id: 1034, type: 'kep', date: '2026-07-31', time: '',     topic: 'Открытие подборки: Долгосрочный экономический рост', done: false },
-        { id: 1035, type: 'kep', date: '2026-08-02', time: '22:00', topic: 'Дедлайн проверки', done: false },
+        { id: 1032, type: 'olmat', date: '2026-07-27', time: '19:00', topic: 'Вебинар: Эконометрика (Астахов)', done: false },
+        { id: 1033, type: 'olmat', date: '2026-07-30', time: '22:00', topic: 'Дедлайн проверки', done: false },
+        { id: 1034, type: 'olmat', date: '2026-07-31', time: '',     topic: 'Открытие подборки: Долгосрочный экономический рост', done: false },
+        { id: 1035, type: 'olmat', date: '2026-08-02', time: '22:00', topic: 'Дедлайн проверки', done: false },
         // Неделя 9
-        { id: 1036, type: 'kep', date: '2026-08-03', time: '19:00', topic: 'Вебинар: Долгосрочный экономический рост (Астахов)', done: false },
-        { id: 1037, type: 'kep', date: '2026-08-06', time: '22:00', topic: 'Дедлайн проверки', done: false },
-        { id: 1038, type: 'kep', date: '2026-08-07', time: '',     topic: 'Открытие решалки: Эконометрика', done: false },
-        { id: 1039, type: 'kep', date: '2026-08-09', time: '22:00', topic: 'Дедлайн проверки — последний!', done: false },
+        { id: 1036, type: 'olmat', date: '2026-08-03', time: '19:00', topic: 'Вебинар: Долгосрочный экономический рост (Астахов)', done: false },
+        { id: 1037, type: 'olmat', date: '2026-08-06', time: '22:00', topic: 'Дедлайн проверки', done: false },
+        { id: 1038, type: 'olmat', date: '2026-08-07', time: '',     topic: 'Открытие решалки: Эконометрика', done: false },
+        { id: 1039, type: 'olmat', date: '2026-08-09', time: '22:00', topic: 'Дедлайн проверки — последний!', done: false },
       ];
       saveLessons([...loadLessons(), ...kep]);
     }
