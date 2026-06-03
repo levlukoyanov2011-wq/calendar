@@ -558,6 +558,15 @@
     .deadline-date  { font-size: 11px; color: var(--text-dim); }
     .deadline-card.done .deadline-label { text-decoration: line-through; opacity: 0.5; }
 
+    .reshalk-card {
+      background: rgba(60,200,130,0.05);
+      border-color: rgba(60,200,130,0.18);
+      padding: 10px 16px;
+      min-height: unset;
+    }
+    .reshalk-card:hover { border-color: rgba(60,200,130,0.35); }
+    .reshalk-card .deadline-label { color: rgba(80,210,150,0.9); }
+    .reshalk-card.done .deadline-label { text-decoration: line-through; opacity: 0.5; }
 
     .tg-btn {
       display: inline-flex; align-items: center; gap: 8px;
@@ -751,17 +760,17 @@
       return new Date(a.date + 'T' + (a.time || '00:00')) - new Date(b.date + 'T' + (b.time || '00:00'));
     }
 
-    function isDeadline(l) {
-      return l.topic.startsWith('Дедлайн');
-    }
+    function isDeadline(l) { return l.topic.startsWith('Дедлайн'); }
+    function isReshалka(l) { return l.topic.startsWith('Открытие решалки'); }
 
     function cardHTML(l, i) {
-      if (isDeadline(l)) {
-        return `<div class="card deadline-card ${l.done ? 'done' : ''}"
+      if (isDeadline(l) || isReshалka(l)) {
+        const isD = isDeadline(l);
+        return `<div class="card ${isD ? 'deadline-card' : 'reshalk-card'} ${l.done ? 'done' : ''}"
              style="animation-delay:${i * 60}ms"
              onclick="handleCardClick(event, ${l.id})">
           <div class="deadline-inner">
-            <span class="deadline-icon">⏰</span>
+            <span class="deadline-icon">${isD ? '⏰' : '✅'}</span>
             <div class="deadline-text">
               <span class="deadline-label">${escHtml(l.topic)}</span>
               <span class="deadline-date">${formatDate(l.date)}${l.time ? ' · ' + l.time : ''}</span>
