@@ -540,6 +540,22 @@
     .cal-popup-dot {
       width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 3px;
     }
+    .deadline-card {
+      background: rgba(220,140,40,0.06);
+      border-color: rgba(220,140,40,0.2);
+      padding: 10px 16px;
+      min-height: unset;
+    }
+    .deadline-card:hover { border-color: rgba(220,140,40,0.4); }
+    .deadline-inner {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .deadline-icon { font-size: 15px; flex-shrink: 0; opacity: 0.8; }
+    .deadline-text { display: flex; flex-direction: column; gap: 1px; flex: 1; }
+    .deadline-label { font-size: 13px; font-weight: 500; color: rgba(220,160,60,0.9); }
+    .deadline-date  { font-size: 11px; color: var(--text-dim); }
+    .deadline-card.done .deadline-label { text-decoration: line-through; opacity: 0.5; }
+
     .tg-btn {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 9px 16px;
@@ -733,7 +749,26 @@
       return new Date(a.date + 'T' + (a.time || '00:00')) - new Date(b.date + 'T' + (b.time || '00:00'));
     }
 
+    function isDeadline(l) {
+      return l.topic.startsWith('Дедлайн');
+    }
+
     function cardHTML(l, i) {
+      if (isDeadline(l)) {
+        return `<div class="card deadline-card ${l.done ? 'done' : ''}"
+             style="animation-delay:${i * 60}ms"
+             onclick="handleCardClick(event, ${l.id})">
+          <div class="deadline-inner">
+            <span class="deadline-icon">⏰</span>
+            <div class="deadline-text">
+              <span class="deadline-label">${escHtml(l.topic)}</span>
+              <span class="deadline-date">${formatDate(l.date)}${l.time ? ' · ' + l.time : ''}</span>
+            </div>
+            <button class="check-btn ${l.done ? 'checked' : ''}"
+                    onclick="event.stopPropagation(); archiveCard(event, ${l.id}, ${l.done});">✓</button>
+          </div>
+        </div>`;
+      }
       return `<div class="card ${l.done ? 'done' : ''}"
            style="animation-delay:${i * 60}ms"
            onclick="handleCardClick(event, ${l.id})">
