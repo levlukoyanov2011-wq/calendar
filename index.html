@@ -207,14 +207,14 @@
       bottom: 28px; right: 28px;
       width: 52px; height: 52px;
       border-radius: 50%;
-      background: var(--accent);
+      background: #c49a28;
       border: none;
       color: #000;
       font-size: 24px;
       font-weight: 300;
       cursor: pointer;
       box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-      transition: transform 0.15s, background 0.6s ease;
+      transition: transform 0.15s;
       z-index: 100;
       line-height: 1;
     }
@@ -792,7 +792,7 @@
       }
       return `<div class="card ${l.done ? 'done' : ''}"
            style="animation-delay:${i * 60}ms"
-           onclick="handleCardClick(event, ${l.id})">
+           onclick="handleCardClick(event, ${l.id}, ${l.done})">
         <div class="card-top">
           <button class="check-btn ${l.done ? 'checked' : ''}"
                   onclick="event.stopPropagation(); archiveCard(event, ${l.id}, ${l.done});">✓</button>
@@ -867,8 +867,15 @@
       return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    function handleCardClick(e, id) {
-      openModal(id);
+    function handleCardClick(e, id, isDone) {
+      if (e.target.closest('.check-btn')) return;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      if (x < rect.width * 0.25) {
+        archiveCard(e, id, isDone);
+      } else {
+        openModal(id);
+      }
     }
 
     function updateWeekCount() {
