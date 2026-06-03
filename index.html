@@ -8,7 +8,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Golos+Text:wght@400;500;600&family=Raleway:wght@700;800&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -559,39 +558,6 @@
     .deadline-date  { font-size: 11px; color: var(--text-dim); }
     .deadline-card.done .deadline-label { text-decoration: line-through; opacity: 0.5; }
 
-    #login-screen {
-      position: fixed; inset: 0; z-index: 1000;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .login-card {
-      background: #1a1a28; border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 20px; padding: 36px 32px;
-      width: min(360px, calc(100vw - 40px));
-      display: flex; flex-direction: column; gap: 14px;
-      animation: fadeUp 0.3s ease both;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
-    }
-    .login-title {
-      font-family: 'Raleway', sans-serif; font-size: 1.6rem;
-      font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
-      color: var(--text); text-align: center; margin-bottom: 4px;
-    }
-    .login-sub { text-align: center; color: var(--text-dim); font-size: 13px; margin-top: -6px; }
-    .login-input {
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 10px; padding: 12px 14px; color: var(--text);
-      font-family: 'Golos Text', sans-serif; font-size: 14px; outline: none;
-      transition: border-color 0.15s; width: 100%;
-    }
-    .login-input:focus { border-color: rgba(255,255,255,0.25); }
-    .login-btn {
-      background: var(--accent); border: none; border-radius: 10px;
-      padding: 12px; color: #000; font-family: 'Golos Text', sans-serif;
-      font-size: 14px; font-weight: 600; cursor: pointer;
-      transition: opacity 0.15s, background 0.6s;
-    }
-    .login-btn:hover { opacity: 0.85; }
-    .login-err { color: rgba(255,100,100,0.85); font-size: 12px; text-align: center; min-height: 16px; }
 
     .tg-btn {
       display: inline-flex; align-items: center; gap: 8px;
@@ -616,16 +582,6 @@
   </div>
   <svg style="position:fixed;width:0;height:0"><filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feBlend in="SourceGraphic" mode="multiply"/></filter></svg>
   <div id="noise"></div>
-  <div id="login-screen">
-    <div class="login-card">
-      <p class="login-title">Занятия</p>
-      <p class="login-sub">Войди чтобы продолжить</p>
-      <input id="login-email" class="login-input" type="email" placeholder="Email" autocomplete="email">
-      <input id="login-pass" class="login-input" type="password" placeholder="Пароль" autocomplete="current-password">
-      <button class="login-btn" onclick="signIn()">Войти</button>
-      <p id="login-err" class="login-err"></p>
-    </div>
-  </div>
   <div id="app">
     <header>
       <div class="header-top">
@@ -694,24 +650,14 @@
       messagingSenderId: "296037762062",
       appId: "1:296037762062:web:2c65b7574d7e7c76a8285f"
     });
-    const fbAuth = firebase.auth();
-    const fbDb  = firebase.database();
-    let fbUser  = null;
+    const fbDb = firebase.database();
     let lessonsCache = [];
 
     function loadLessons() { return lessonsCache; }
 
     function saveLessons(lessons) {
       lessonsCache = lessons;
-      if (fbUser) fbDb.ref('users/' + fbUser.uid + '/lessons').set(lessons);
-    }
-
-    function signIn() {
-      const email = document.getElementById('login-email').value.trim();
-      const pass  = document.getElementById('login-pass').value;
-      document.getElementById('login-err').textContent = '';
-      fbAuth.signInWithEmailAndPassword(email, pass)
-        .catch(() => { document.getElementById('login-err').textContent = 'Неверная почта или пароль'; });
+      fbDb.ref('lessons').set(lessons);
     }
 
     function addLesson(data) {
@@ -1112,30 +1058,16 @@
       document.addEventListener('keydown', e => {
         if (e.key === 'Escape' && document.getElementById('modal').open) closeModal();
       });
-      document.getElementById('login-pass').addEventListener('keydown', e => {
-        if (e.key === 'Enter') signIn();
+
+      fbDb.ref('lessons').on('value', snap => {
+        const data = snap.val();
+        lessonsCache = Array.isArray(data) ? data : [];
+        if (!lessonsCache.some(l => l.id >= 1001 && l.id <= 1039)) seedKEP();
+        renderLessons();
+        if (calVisible) renderCalendar();
       });
 
-      fbAuth.onAuthStateChanged(user => {
-        const loginScreen = document.getElementById('login-screen');
-        if (user) {
-          fbUser = user;
-          loginScreen.style.display = 'none';
-
-          fbDb.ref('users/' + user.uid + '/lessons').on('value', snap => {
-            const data = snap.val();
-            lessonsCache = Array.isArray(data) ? data : [];
-            if (!lessonsCache.some(l => l.id >= 1001 && l.id <= 1039)) seedKEP();
-            renderLessons();
-            if (calVisible) renderCalendar();
-          });
-
-          requestAnimationFrame(() => moveIndicator(document.querySelector('.tab.active')));
-        } else {
-          fbUser = null;
-          loginScreen.style.display = 'flex';
-        }
-      });
+      requestAnimationFrame(() => moveIndicator(document.querySelector('.tab.active')));
     });
 
   </script>
