@@ -247,6 +247,7 @@
     }
     .badge-kep   { background: rgba(184,146,42,0.2);  color: #d4a43a; }
     .badge-olmat { background: rgba(107,94,205,0.2);  color: #9b8ef0; }
+    .badge-russian { background: rgba(120,120,120,0.1); color: #aaa; font-style: italic; }
     .card-org  { font-size: 12px; color: var(--text-dim); margin-left: auto; }
     .card-meta { font-size: 13px; color: var(--text-dim); }
     .card-topic {
@@ -513,6 +514,7 @@
     .cal-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
     .cal-dot-kep   { background: #d4a43a; }
     .cal-dot-olmat { background: #9080f0; }
+    .cal-dot-russian { background: #ccc; }
     .cal-popup {
       position: absolute;
       top: calc(100% + 8px); left: 50%;
@@ -615,6 +617,7 @@
           <button class="tab active" data-tab="all">Все</button>
           <button class="tab" data-tab="kep">КЭП</button>
           <button class="tab" data-tab="olmat">Олмат</button>
+          <button class="tab" data-tab="russian" style="opacity:0.65">Русский</button>
           <div class="tab-indicator"></div>
         </div>
       </div>
@@ -796,7 +799,7 @@
         <div class="card-top">
           <button class="check-btn ${l.done ? 'checked' : ''}"
                   onclick="event.stopPropagation(); archiveCard(event, ${l.id}, ${l.done});">✓</button>
-          <span class="badge badge-${l.type}">${l.type === 'kep' ? 'КЭП' : 'Олмат'}</span>
+          <span class="badge badge-${l.type}">${{ kep: 'КЭП', olmat: 'Олмат', russian: 'Рус.' }[l.type] || l.type}</span>
         </div>
         <div class="card-meta">${formatDate(l.date)}${l.time ? ' · ' + l.time : ''}</div>
         <div class="card-topic">${escHtml(l.topic)}</div>
@@ -809,6 +812,7 @@
 
       if (currentTab === 'kep')   all = all.filter(l => l.type === 'kep');
       if (currentTab === 'olmat') all = all.filter(l => l.type === 'olmat');
+      if (currentTab === 'russian') all = all.filter(l => l.type === 'russian');
 
       const active = all.filter(l => !l.done).sort(dateCmp);
       const done   = all.filter(l =>  l.done).sort(dateCmp);
@@ -816,7 +820,7 @@
       let html = currentTab === 'olmat' ? `<a class="tg-btn" href="https://t.me/+4kq100fFNVg3NTI6" target="_blank" rel="noopener">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-1.97 9.289c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L8.48 14.226l-2.95-.924c-.64-.203-.654-.64.136-.948l11.527-4.443c.537-.194 1.006.131.369.337z"/></svg>
         Канал Олмат
-      </a>` : '';
+      </a>` : currentTab === 'russian' ? `<div style="text-align:center;color:#aaa;font-size:13px;padding:8px 0 4px">осталось занятий: ${active.length}</div>` : '';
 
       if (active.length === 0) {
         html += `<div class="empty-state">
@@ -884,8 +888,9 @@
       const mon = new Date(now); mon.setDate(now.getDate() - day + 1); mon.setHours(0,0,0,0);
       const sun = new Date(mon); sun.setDate(mon.getDate() + 6); sun.setHours(23,59,59,999);
       let lessons = loadLessons();
-      if (currentTab === 'kep')   lessons = lessons.filter(l => l.type === 'kep');
-      if (currentTab === 'olmat') lessons = lessons.filter(l => l.type === 'olmat');
+      if (currentTab === 'kep')     lessons = lessons.filter(l => l.type === 'kep');
+      if (currentTab === 'olmat')   lessons = lessons.filter(l => l.type === 'olmat');
+      if (currentTab === 'russian') lessons = lessons.filter(l => l.type === 'russian');
       const count = lessons.filter(l => {
         const d = new Date(l.date + 'T00:00:00');
         return d >= mon && d <= sun;
@@ -949,19 +954,21 @@
         const dayLessons = lessonMap[dateStr] || [];
         const isToday    = today.getFullYear()===calYear && today.getMonth()===calMonth && today.getDate()===d;
 
-        const hasKep   = dayLessons.some(l => l.type==='kep');
-        const hasOlmat = dayLessons.some(l => l.type==='olmat');
+        const hasKep     = dayLessons.some(l => l.type==='kep');
+        const hasOlmat   = dayLessons.some(l => l.type==='olmat');
+        const hasRussian = dayLessons.some(l => l.type==='russian');
 
         let dots = '';
-        if (hasKep)   dots += `<span class="cal-dot cal-dot-kep"></span>`;
-        if (hasOlmat) dots += `<span class="cal-dot cal-dot-olmat"></span>`;
+        if (hasKep)     dots += `<span class="cal-dot cal-dot-kep"></span>`;
+        if (hasOlmat)   dots += `<span class="cal-dot cal-dot-olmat"></span>`;
+        if (hasRussian) dots += `<span class="cal-dot cal-dot-russian"></span>`;
 
         let popup = '';
         if (dayLessons.length > 0) {
           popup = `<div class="cal-popup">
             <div class="cal-popup-date">${formatDate(dateStr)}</div>
             ${dayLessons.map(l => `<div class="cal-popup-item">
-              <span class="cal-popup-dot" style="background:${l.type==='kep'?'#d4a43a':'#9080f0'}"></span>
+              <span class="cal-popup-dot" style="background:${{kep:'#d4a43a',olmat:'#9080f0',russian:'#ccc'}[l.type]||'#9080f0'}"></span>
               <span>${l.time ? l.time+' · ' : ''}${escHtml(l.topic)}</span>
             </div>`).join('')}
           </div>`;
@@ -989,7 +996,7 @@
       document.querySelectorAll('.cal-day.tapped').forEach(d => d.classList.remove('tapped'));
     });
 
-    const THEMES = { all: '', kep: 'theme-kep', olmat: 'theme-olmat' };
+    const THEMES = { all: '', kep: 'theme-kep', olmat: 'theme-olmat', russian: '' };
 
     function switchTab(tab) {
       currentTab = tab;
